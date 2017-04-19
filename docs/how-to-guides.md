@@ -207,6 +207,53 @@ FORMAT: 1A
 
 ```
 
+### Making Dredd Stricter
+
+Often the original main motivation behind having API Blueprint or Swagger written down for your API is to document the interface for users. However, what's enough for users to read is sometimes not strict enough for Dredd to perform thorough testing.
+
+This applies to both [MSON][] (a language powering API Blueprint's [`+ Attributes`][apib-attributes-section] sections) and [JSON Schema][] (a language powering the Swagger format and API Blueprint's [`+ Schema`][apib-schema-section] sections).
+
+Read below about common pitfalls, cases which are not considered as violation of the contract by default and won't cause Dredd tests to fail.
+
+#### Additional Properties
+
+If you describe a JSON body which has attributes `name` and `size`, the following payload will be considered as correct:
+
+```json
+{"name": "Sparta", "size": 300, "luck": false}
+```
+
+It's because in both [MSON][] and [JSON Schema][] additional properties are not forbidden by default.
+
+- In API Blueprint's [`+ Attributes`][apib-attributes-section] sections you can mark your object with [`fixed-type`][apib-fixed-type], which doesn't allow additional properties.
+- In API Blueprint's [`+ Schema`][apib-schema-section] sections and in Swagger you can use [`additionalProperties: false`][json-schema-additional-properties] on the objects.
+
+#### Missing Optional Object Properties
+
+If you describe a JSON body which has attributes `name` and `size`, the following payload will be considered as correct:
+
+```json
+{"name": "Sparta"}
+```
+
+It's because properties are optional by default in both [MSON][] and [JSON Schema][] and you need to explicitly specify them as required.
+
+- In API Blueprint's [`+ Attributes`][apib-attributes-section] section, you can use [`required`][apib-required].
+- In API Blueprint's [`+ Schema`][apib-schema-section] sections and in Swagger you can use [`required`][json-schema-required], where you list the required properties. (Note this is true only for the [Draft v4][] JSON Schema, in older versions the `required` functionality was done differently.)
+
+#### Structure of Array Items Not Matching What's Described
+
+If you describe an array of items, where each of the items should have a `name` property, the following payload will be considered as correct:
+
+```json
+[{"name": "Sparta"}, {"title": "Athens"}, "Thebes"]
+```
+
+That's because in [MSON][], the default behavior is that you are specifying what _may_ appear in the array.
+
+- In API Blueprint's [`+ Attributes`][apib-attributes-section] sections you can mark your array with [`fixed-type`][apib-fixed-type], which doesn't allow array items of a different structure then specified.
+- In API Blueprint's [`+ Schema`][apib-schema-section] sections and in Swagger make sure to learn about how [validation of arrays][json-schema-arrays] exactly works.
+
 ### Writing Hooks
 
 To have an idea where we can hook our arbitrary code, we should first ask Dredd to list all available transaction names:
@@ -692,3 +739,15 @@ If your hooks crash, Dredd will send an error to reporters, alongside with curre
 [Travis CI]: https://travis-ci.org/
 [CircleCI]: https://circleci.com/
 [vendor extension property]: http://swagger.io/specification/#vendorExtensions
+
+[MSON]: https://apiblueprint.org/documentation/mson/specification.html
+[JSON Schema]: http://json-schema.org/
+[Draft v4]: https://tools.ietf.org/html/draft-zyp-json-schema-04
+
+[apib-attributes-section]: https://apiblueprint.org/documentation/specification.html#def-attributes-section
+[apib-schema-section]: https://apiblueprint.org/documentation/specification.html#def-schema-section
+[apib-fixed-type]: https://apiblueprint.org/documentation/mson/specification.html#353-type-attribute
+[apib-required]: https://apiblueprint.org/documentation/mson/specification.html#353-type-attribute
+[json-schema-additional-properties]: https://spacetelescope.github.io/understanding-json-schema/reference/object.html#properties
+[json-schema-required]: https://spacetelescope.github.io/understanding-json-schema/reference/object.html#required-properties
+[json-schema-arrays]: https://spacetelescope.github.io/understanding-json-schema/reference/array.html
