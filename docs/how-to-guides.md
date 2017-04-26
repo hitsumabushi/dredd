@@ -207,7 +207,7 @@ FORMAT: 1A
 
 ```
 
-### Making Dredd Stricter
+### Making Dredd Validation Stricter
 
 Often the original main motivation behind having API Blueprint or Swagger written down for your API is to document the interface for users. However, what's enough for users to read is sometimes not strict enough for Dredd to perform thorough testing.
 
@@ -253,6 +253,19 @@ That's because in [MSON][], the default behavior is that you are specifying what
 
 - In API Blueprint's [`+ Attributes`][apib-attributes-section] sections you can mark your array with [`fixed-type`][apib-fixed-type], which doesn't allow array items of a different structure then specified.
 - In API Blueprint's [`+ Schema`][apib-schema-section] sections and in Swagger make sure to learn about how [validation of arrays][json-schema-arrays] exactly works.
+
+#### Validating Specific Values
+
+If you describe a JSON body which has attributes `name` and `size`, the following payload will be considered as correct:
+
+```json
+{"name": "Sparta", "size": 42}
+```
+
+By default, Dredd doesn't test values. However, we know the [Battle of Thermopylae](https://en.wikipedia.org/wiki/Battle_of_Thermopylae) featured 300 Spartans fighting to the death and there's no way to rewrite the history. For that reason, you may want to ensure the size is always equal to 300.
+
+- In API Blueprint's [`+ Attributes`][apib-attributes-section] sections you can mark your property with [`fixed`][apib-fixed], which turns the sample value into a required value. You can also use [`enum`][apib-enum] to provide a set of possible values.
+- In API Blueprint's [`+ Schema`][apib-schema-section] sections and in Swagger you can use [`enum`][json-schema-enum] with one or more possible values.
 
 ### Writing Hooks
 
@@ -748,6 +761,9 @@ If your hooks crash, Dredd will send an error to reporters, alongside with curre
 [apib-schema-section]: https://apiblueprint.org/documentation/specification.html#def-schema-section
 [apib-fixed-type]: https://apiblueprint.org/documentation/mson/specification.html#353-type-attribute
 [apib-required]: https://apiblueprint.org/documentation/mson/specification.html#353-type-attribute
+[apib-fixed]: https://apiblueprint.org/documentation/mson/specification.html#353-type-attribute
+[apib-enum]: https://apiblueprint.org/documentation/mson/specification.html#212-structure-types
+[json-schema-enum]: https://spacetelescope.github.io/understanding-json-schema/reference/generic.html#enumerated-values
 [json-schema-additional-properties]: https://spacetelescope.github.io/understanding-json-schema/reference/object.html#properties
 [json-schema-required]: https://spacetelescope.github.io/understanding-json-schema/reference/object.html#required-properties
 [json-schema-arrays]: https://spacetelescope.github.io/understanding-json-schema/reference/array.html
