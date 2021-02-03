@@ -9,6 +9,6 @@ packaging==16.8
 Pygments==2.2.0
 pygments-markdown-lexer==0.1.0.dev39
 pyparsing==2.2.0
-PyYAML==3.12
+PyYAML==5.1
 six==1.10.0
 tornado==4.5.1
